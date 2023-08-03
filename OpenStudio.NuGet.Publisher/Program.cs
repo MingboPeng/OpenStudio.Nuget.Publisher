@@ -25,9 +25,10 @@ Console.WriteLine($"[INFO] Input year:\n {year}");
 
 
 var repoDir = Path.GetFullPath(".");
-repoDir = repoDir.Substring(0, repoDir.LastIndexOf("OpenStudio.NuGet.Publisher"));
+Console.WriteLine($"[INFO] Current dir:\n {repoDir}");
+repoDir = repoDir.Contains("bin") ? repoDir.Substring(0, repoDir.LastIndexOf("OpenStudio.NuGet.Publisher")): repoDir;
 
-var workDir = Path.Combine(Path.GetFullPath("."), "nuget");
+var workDir = Path.Combine(repoDir, "nuget");
 
 if (Directory.Exists(workDir))
     Directory.Delete(workDir, true);
@@ -37,7 +38,7 @@ if (Directory.Exists(workDir))
 var nugetPath = Directory.GetFiles(repoDir, "*.nupkg").FirstOrDefault();
 
 if (string.IsNullOrEmpty(nugetPath))
-    throw new ArgumentException("Failed to find a NuGet package");
+    throw new ArgumentException($"Failed to find a NuGet package in {repoDir}");
 
 ZipFile.ExtractToDirectory(nugetPath, workDir);
 Console.WriteLine($"Extracting {nugetPath}");

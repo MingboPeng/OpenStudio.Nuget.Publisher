@@ -22,6 +22,6 @@ jobs:
       
       - name: "Update package"
         run: |
-          dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj
+          dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj "NREL.OpenStudio.win" "3.6.1" "2023"
           ls -r
           
