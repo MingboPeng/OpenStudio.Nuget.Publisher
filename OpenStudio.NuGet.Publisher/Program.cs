@@ -1,5 +1,9 @@
 ﻿using System.IO.Compression;
+using System.Net.Http.Json;
 using System.Text.RegularExpressions;
+
+
+
 
 
 
@@ -11,7 +15,7 @@ if (!commandArgs.Any() || commandArgs.Count() != 3)
 {
     Console.WriteLine("Invalid inputs. The default value will be used: NREL.OpenStudio.win, 3.6.1, 2023");
     commandArgs.Add("NREL.OpenStudio.win");
-    commandArgs.Add("3.6.1");
+    commandArgs.Add("3.5.1");
     commandArgs.Add("2023");
 }
 
@@ -25,8 +29,27 @@ Console.WriteLine($"[INFO] Input year:\n {year}");
 
 
 var repoDir = Path.GetFullPath(".");
-Console.WriteLine($"[INFO] Current dir:\n {repoDir}");
 repoDir = repoDir.Contains("bin") ? repoDir.Substring(0, repoDir.LastIndexOf("OpenStudio.NuGet.Publisher")): repoDir;
+Console.WriteLine($"[INFO] Current dir:\n {repoDir}");
+
+
+// check version https://api.nuget.org/v3-flatcontainer/nrel.openstudio.win/index.json
+var api = @$"https://api.nuget.org/v3-flatcontainer/{packageID.ToLower()}/index.json";
+var httpC = new HttpClient();
+var versions = httpC.GetFromJsonAsync<nugetVersions>(api).GetAwaiter().GetResult()?.versions.OrderBy(_=>_);
+
+
+var inputVersion = Version.Parse(version);
+while (versions.Contains(inputVersion))
+{
+    var rev = inputVersion.Revision;
+    if (rev == -1)
+        rev = 0;
+    inputVersion = new Version(inputVersion.Major, inputVersion.Minor, inputVersion.Build, rev + 1);
+}
+
+version = inputVersion.ToString();
+
 
 var workDir = Path.Combine(repoDir, "nuget");
 
@@ -96,3 +119,7 @@ void FixNuspec(string nuspecPath, string packId, string version, string year)
 
 
 
+class nugetVersions
+{
+    public List<Version> versions { get; set; }
+}

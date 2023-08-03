@@ -17,11 +17,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          gh run download 5326894805 -n CSharp_Windows_x64x86 --dir . --repo NREL/OpenStudio
+          gh run download 5120080246 -n CSharp_Windows_x64x86 --dir . --repo NREL/OpenStudio
           ls
       
       - name: "Update package"
         run: |
           dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj "NREL.OpenStudio.win" "3.6.1" "2023"
           ls -r
+
+      - name: "Publish"
+        run: |
+          dotnet nuget push NREL.OpenStudio.win.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
           
