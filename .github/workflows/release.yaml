@@ -13,7 +13,10 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v2
 
-      - run: |
+      - name: "Download artifacts"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
           gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/OWNER/NREL/OpenStudio/actions/artifacts/761132260/zip
           
           ls -r
