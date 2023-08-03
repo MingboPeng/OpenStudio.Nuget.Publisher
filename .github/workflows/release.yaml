@@ -17,7 +17,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/NREL/OpenStudio/actions/artifacts/761132260/zip
-          
+          gh run download 5326894805 -n CSharp_Windows_x64x86 --dir . --repo NREL/OpenStudio
           ls -r
           
