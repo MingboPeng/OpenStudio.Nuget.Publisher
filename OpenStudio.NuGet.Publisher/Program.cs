@@ -1,33 +1,52 @@
 ﻿using System.IO.Compression;
 using System.Text.RegularExpressions;
 
-Console.WriteLine("Hello, World!");
 
-var zipPath = @"C:\Users\mingo\Downloads\Compressed\CSharp_Windows_x64x86.zip";
 
-var workDir = Path.Combine(Path.GetDirectoryName(zipPath), Path.GetFileNameWithoutExtension(zipPath));
+Console.WriteLine("Hello, OpenStudio Nuget Publisher!");
+var commandArgs = args.Select(x => x.Trim()).Where(_ => !string.IsNullOrEmpty(_)).ToList();
+
+var assembly = typeof(Program).Assembly;
+if (!commandArgs.Any() || commandArgs.Count() != 3)
+{
+    Console.WriteLine("Invalid inputs. The default value will be used: NREL.OpenStudio.win, 3.6.1, 2023");
+    commandArgs.Add("NREL.OpenStudio.win");
+    commandArgs.Add("3.6.1");
+    commandArgs.Add("2023");
+}
+
+var packageID = commandArgs.ElementAtOrDefault(0); // "NREL.OpenStudio.win";
+var version = commandArgs.ElementAtOrDefault(1); // "3.6.1";
+var year = commandArgs.ElementAtOrDefault(2);// "2023";
+
+Console.WriteLine($"[INFO] Input packageID:\n {packageID}");
+Console.WriteLine($"[INFO] Input version:\n {version}");
+Console.WriteLine($"[INFO] Input year:\n {year}");
+
 
 var repoDir = Path.GetFullPath(".");
-repoDir = repoDir.Substring(0, repoDir.LastIndexOf("bin"));
+repoDir = repoDir.Substring(0, repoDir.LastIndexOf("OpenStudio.NuGet.Publisher"));
 
-Directory.Delete(workDir, true);
-ZipFile.ExtractToDirectory(zipPath, workDir);
+var workDir = Path.Combine(Path.GetFullPath("."), "nuget");
 
-var nugetPath = Directory.GetFiles(workDir, "*.nupkg").FirstOrDefault();
+if (Directory.Exists(workDir))
+    Directory.Delete(workDir, true);
+
+//ZipFile.ExtractToDirectory(zipPath, workDir);
+
+var nugetPath = Directory.GetFiles(repoDir, "*.nupkg").FirstOrDefault();
 
 if (string.IsNullOrEmpty(nugetPath))
     throw new ArgumentException("Failed to find a NuGet package");
 
 ZipFile.ExtractToDirectory(nugetPath, workDir);
-
+Console.WriteLine($"Extracting {nugetPath}");
 
 // update nuget package for Windows
 
 // update OpenStudio.nuspec
 var nuspec =  Directory.GetFiles(workDir,"*.nuspec").FirstOrDefault();
-var packageID = "NREL.OpenStudio.win";
-var version = "3.6.1";
-var year = "2023";
+
 
 FixNuspec(nuspec, packageID, version, year);
 Console.WriteLine("Done fixing nuspec!");
@@ -37,7 +56,6 @@ Console.WriteLine("Done fixing nuspec!");
 var net45Dir = Path.Combine(workDir, @"build\net45");
 Directory.Delete(net45Dir, true);
 Console.WriteLine("Done removing net45 dir!");
-
 
 // update .targets
 var targets = Directory.GetFiles(workDir, "*.targets", SearchOption.AllDirectories).FirstOrDefault();
@@ -57,6 +75,7 @@ File.Delete(nugetPath);
 // zip back to nupkg.
 var newNugetPath = Path.Combine(repoDir, $"{packageID}.{version}.nupkg");
 ZipFile.CreateFromDirectory(workDir, newNugetPath);
+Console.WriteLine($"Done creating {newNugetPath}");
 
 
 
@@ -72,5 +91,7 @@ void FixNuspec(string nuspecPath, string packId, string version, string year)
     text = Regex.Replace(text, @"2018(\s|\S)*\d{4}", $"2018-{year}", RegexOptions.IgnoreCase);
     File.WriteAllText(nuspecPath, text);
 }
+
+
 
 
