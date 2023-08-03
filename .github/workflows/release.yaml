@@ -18,5 +18,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           gh run download 5326894805 -n CSharp_Windows_x64x86 --dir . --repo NREL/OpenStudio
+          ls
+      
+      - name: "Update package"
+        run: |
+          dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj
           ls -r
           
