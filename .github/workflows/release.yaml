@@ -11,17 +11,18 @@ jobs:
   deploy:
     runs-on: ${{ matrix.os }}
     continue-on-error: false
-    matrix:
-      include:
-      - os: windows-latest
-        NuGetID: "NREL.OpenStudio.win"
-        ArtifactName: "CSharp_Windows_x64x86"
-      - os: macos-11
-        NuGetID: "NREL.OpenStudio.macOS-x64"
-        ArtifactName: "CSharp_macOS"
-      - os: ubuntu-latest
-        NuGetID: "NREL.OpenStudio.linux-x64"
-        ArtifactName: "CSharp_Ubuntu"
+    strategy:
+      matrix:
+        include:
+        - os: windows-latest
+          NuGetID: "NREL.OpenStudio.win"
+          ArtifactName: "CSharp_Windows_x64x86"
+        - os: macos-11
+          NuGetID: "NREL.OpenStudio.macOS-x64"
+          ArtifactName: "CSharp_macOS"
+        - os: ubuntu-latest
+          NuGetID: "NREL.OpenStudio.linux-x64"
+          ArtifactName: "CSharp_Ubuntu"
 
 
     steps:
