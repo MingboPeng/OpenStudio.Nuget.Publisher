@@ -40,10 +40,11 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           7z e ${{matrix.ArtifactName}}.zip -o.
+          ls -r
       
       - name: "Update package"
         run: |
-          dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj ${{ matrix.NuGetID }} ${{ env.VERSION }}
+          dotnet run --project OpenStudio.NuGet.Publisher/OpenStudio.NuGet.Publisher.csproj ${{ matrix.NuGetID }} ${{ env.VERSION }}
           ls -r
 
       - name: Upload artifact
