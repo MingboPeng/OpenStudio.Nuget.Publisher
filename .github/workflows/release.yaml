@@ -39,7 +39,7 @@ jobs:
       - name: "Unzip artifact"
         if: runner.os != 'Windows'
         run: |
-          7z e ${{matrix.ArtifactName}}.zip -o .
+          7z e ${{matrix.ArtifactName}}.zip -o ./
       
       - name: "Update package"
         run: |
