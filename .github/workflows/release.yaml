@@ -12,17 +12,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     continue-on-error: false
     matrix:
-      os: [windows-latest, ubuntu-latest, macos-11]
       include:
       - os: windows-latest
-        NUGET_ID: NREL.OpenStudio.win
-        ARTIFACT_NAME: CSharp_Windows_x64x86
+        NuGetID: "NREL.OpenStudio.win"
+        ArtifactName: "CSharp_Windows_x64x86"
       - os: macos-11
-        NUGET_ID: NREL.OpenStudio.macOS-x64
-        ARTIFACT_NAME: CSharp_macOS
+        NuGetID: "NREL.OpenStudio.macOS-x64"
+        ArtifactName: "CSharp_macOS"
       - os: ubuntu-latest
-        NUGET_ID: NREL.OpenStudio.linux-x64
-        ARTIFACT_NAME: CSharp_Ubuntu
+        NuGetID: "NREL.OpenStudio.linux-x64"
+        ArtifactName: "CSharp_Ubuntu"
 
 
     steps:
@@ -33,21 +32,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          gh run download ${{ env.RUN_ID }} -n ${{matrix.ARTIFACT_NAME}} --dir . --repo NREL/OpenStudio
+          gh run download ${{ env.RUN_ID }} -n ${{matrix.ArtifactName}} --dir . --repo NREL/OpenStudio
           ls
       
       - name: "Update package"
         run: |
-          dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj ${{ matrix.NUGET_ID }} ${{ env.VERSION }}
+          dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj ${{ matrix.NuGetID }} ${{ env.VERSION }}
           ls -r
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.NUGET_ID }}
-          path: ${{ matrix.NUGET_ID }}.*.nupkg
+          name: ${{ matrix.NuGetID }}
+          path: ${{ matrix.NuGetID }}.*.nupkg
 
       - name: "Publish"
         run: |
-          dotnet nuget push ${{ matrix.NUGET_ID }}.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ${{ matrix.NuGetID }}.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
           
