@@ -1,13 +1,29 @@
-name: release to NuGet
+env:
+  RUN_ID: 5120080246
+  VERSION: "3.6.1"
 
+name: release to NuGet
 on:
   push:
 
 jobs:
 
   deploy:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     continue-on-error: false
+    matrix:
+      os: [windows-latest, ubuntu-latest, macos-11]
+      include:
+      - os: windows-latest
+        NUGET_ID: NREL.OpenStudio.win
+        ARTIFACT_NAME: CSharp_Windows_x64x86
+      - os: macos-11
+        NUGET_ID: NREL.OpenStudio.macOS-x64
+        ARTIFACT_NAME: CSharp_macOS
+      - os: ubuntu-latest
+        NUGET_ID: NREL.OpenStudio.linux-x64
+        ARTIFACT_NAME: CSharp_Ubuntu
+
 
     steps:
       - name: "Checkout"
@@ -17,21 +33,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          gh run download 5120080246 -n CSharp_Windows_x64x86 --dir . --repo NREL/OpenStudio
+          gh run download ${{ env.RUN_ID }} -n ${{matrix.ARTIFACT_NAME}} --dir . --repo NREL/OpenStudio
           ls
       
       - name: "Update package"
         run: |
-          dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj "NREL.OpenStudio.win" "3.6.1" "2023"
+          dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj ${{ matrix.NUGET_ID }} ${{ env.VERSION }}
           ls -r
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: NREL.OpenStudio.win
-          path: NREL.OpenStudio.*.nupkg
+          name: ${{ matrix.NUGET_ID }}
+          path: ${{ matrix.NUGET_ID }}.*.nupkg
 
       - name: "Publish"
         run: |
-          dotnet nuget push NREL.OpenStudio.win.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ${{ matrix.NUGET_ID }}.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
           

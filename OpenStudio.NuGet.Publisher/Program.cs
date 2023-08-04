@@ -1,31 +1,30 @@
 ﻿using System.IO.Compression;
 using System.Net.Http.Json;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
+var system = "Windows";
+if (ThisOS.isMacOS())
+    system = "MacOS";
+else if (ThisOS.isLinux())
+    system = "Linux";
 
-
-
-
-
-Console.WriteLine("Hello, OpenStudio Nuget Publisher!");
+Console.WriteLine($"Hello, OpenStudio Nuget Publisher on {system}!");
 var commandArgs = args.Select(x => x.Trim()).Where(_ => !string.IsNullOrEmpty(_)).ToList();
 
 var assembly = typeof(Program).Assembly;
-if (!commandArgs.Any() || commandArgs.Count() != 3)
+if (!commandArgs.Any() || commandArgs.Count() != 2)
 {
-    Console.WriteLine("Invalid inputs. The default value will be used: NREL.OpenStudio.win, 3.6.1, 2023");
+    Console.WriteLine("Invalid inputs. The default value will be used: NREL.OpenStudio.win, 3.6.1");
     commandArgs.Add("NREL.OpenStudio.win");
     commandArgs.Add("3.5.1");
-    commandArgs.Add("2023");
 }
 
 var packageID = commandArgs.ElementAtOrDefault(0); // "NREL.OpenStudio.win";
 var version = commandArgs.ElementAtOrDefault(1); // "3.6.1";
-var year = commandArgs.ElementAtOrDefault(2);// "2023";
 
 Console.WriteLine($"[INFO] Input packageID:\n {packageID}");
 Console.WriteLine($"[INFO] Input version:\n {version}");
-Console.WriteLine($"[INFO] Input year:\n {year}");
 
 
 var repoDir = Path.GetFullPath(".");
@@ -72,7 +71,7 @@ Console.WriteLine($"Extracting {nugetPath}");
 var nuspec =  Directory.GetFiles(workDir,"*.nuspec").FirstOrDefault();
 var nuspecTemp = Path.Combine(repoDir, @"Template\OpenStudio.nuspec");
 File.Copy(nuspecTemp, nuspec, true);
-FixNuspec(nuspec, packageID, version, year);
+FixNuspec(nuspec, packageID, version);
 Console.WriteLine("Done fixing nuspec!");
 
 
@@ -86,8 +85,11 @@ if (Directory.Exists(net45Dir))
 
 // update .targets
 var targets = Directory.GetFiles(workDir, "*.targets", SearchOption.AllDirectories).FirstOrDefault();
-var targetTemp = Path.Combine(repoDir, @"Template\NREL.OpenStudio.win.targets");
-var newTargets = Path.Combine(Path.GetDirectoryName(targets), $"{packageID}.targets");
+var targetTemp = Path.Combine(repoDir, @$"Template\{packageID}.targets");
+var newTargets = ThisOS.isWindows() ?
+    Path.Combine(Path.GetDirectoryName(targets), $"{packageID}.targets") :
+    Path.Combine(Path.GetDirectoryName(targets), $"OpenStudio.targets");
+
 
 File.Delete(targets);
 if (!File.Exists(targetTemp))
@@ -106,7 +108,7 @@ Console.WriteLine($"Done creating {newNugetPath}");
 
 
 
-void FixNuspec(string nuspecPath, string packId, string version, string year)
+void FixNuspec(string nuspecPath, string packId, string version)
 {
     var text = File.ReadAllText(nuspecPath);
     // replace ID <id>OpenStudio</id> with <id>NREL.OpenStudio.win</id>
@@ -116,7 +118,12 @@ void FixNuspec(string nuspecPath, string packId, string version, string year)
 }
 
 
-
+static class ThisOS
+{
+    public static bool isWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    public static bool isMacOS() => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    public static bool isLinux() => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+}
 
 class nugetVersions
 {
