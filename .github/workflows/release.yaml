@@ -36,6 +36,11 @@ jobs:
           gh run download ${{ env.RUN_ID }} -n ${{matrix.ArtifactName}} --dir . --repo NREL/OpenStudio
           ls
       
+      - name: "Unzip artifact"
+        if: runner.os != 'Windows'
+        run: |
+          7z e ${{matrix.ArtifactName}}.zip -o .
+      
       - name: "Update package"
         run: |
           dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj ${{ matrix.NuGetID }} ${{ env.VERSION }}
