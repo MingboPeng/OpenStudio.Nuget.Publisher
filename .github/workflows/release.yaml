@@ -25,7 +25,13 @@ jobs:
           dotnet run --project OpenStudio.NuGet.Publisher\OpenStudio.NuGet.Publisher.csproj "NREL.OpenStudio.win" "3.6.1" "2023"
           ls -r
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: NREL.OpenStudio.win.3.6.1
+          path: NREL.OpenStudio.win.3.6.1.nupkg
+
       - name: "Publish"
         run: |
-          dotnet nuget push NREL.OpenStudio.win.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+          # dotnet nuget push NREL.OpenStudio.win.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
           
