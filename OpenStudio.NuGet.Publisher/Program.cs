@@ -69,14 +69,14 @@ Console.WriteLine($"Extracting {nugetPath}");
 
 // update OpenStudio.nuspec
 var nuspec =  Directory.GetFiles(workDir,"*.nuspec").FirstOrDefault();
-var nuspecTemp = Path.Combine(repoDir, @"Template\OpenStudio.nuspec");
+var nuspecTemp = Path.Combine(repoDir, "Template", "OpenStudio.nuspec");
 File.Copy(nuspecTemp, nuspec, true);
 FixNuspec(nuspec, packageID, version);
 Console.WriteLine("Done fixing nuspec!");
 
 
 // remove files for targetFramework 4.5 build\net45
-var net45Dir = Path.Combine(workDir, @"build\net45");
+var net45Dir = Path.Combine(workDir, "build", "net45");
 if (Directory.Exists(net45Dir))
 {
     Directory.Delete(net45Dir, true);
@@ -85,7 +85,7 @@ if (Directory.Exists(net45Dir))
 
 // update .targets
 var targets = Directory.GetFiles(workDir, "*.targets", SearchOption.AllDirectories).FirstOrDefault();
-var targetTemp = Path.Combine(repoDir, @$"Template\{packageID}.targets");
+var targetTemp = Path.Combine(repoDir, "Template", $"{packageID}.targets");
 var newTargets = ThisOS.isWindows() ?
     Path.Combine(Path.GetDirectoryName(targets), $"{packageID}.targets") :
     Path.Combine(Path.GetDirectoryName(targets), $"OpenStudio.targets");
