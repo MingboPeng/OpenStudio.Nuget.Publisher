@@ -46,17 +46,17 @@ while (versions.Contains(inputVersion))
     if (rev == -1)
         rev = 0;
     inputVersion = new Version(inputVersion.Major, inputVersion.Minor, inputVersion.Build, rev + 1);
+
 }
 
 version = inputVersion.ToString();
-
+Console.WriteLine($"Done checking version {version}");
 
 var workDir = Path.Combine(repoDir, "nuget");
 
+// clean up
 if (Directory.Exists(workDir))
     Directory.Delete(workDir, true);
-
-//ZipFile.ExtractToDirectory(zipPath, workDir);
 
 var nugetPath = Directory.GetFiles(repoDir, "*.nupkg").FirstOrDefault();
 
@@ -70,16 +70,19 @@ Console.WriteLine($"Extracting {nugetPath}");
 
 // update OpenStudio.nuspec
 var nuspec =  Directory.GetFiles(workDir,"*.nuspec").FirstOrDefault();
-
-
+var nuspecTemp = Path.Combine(repoDir, @"Template\OpenStudio.nuspec");
+File.Copy(nuspecTemp, nuspec, true);
 FixNuspec(nuspec, packageID, version, year);
 Console.WriteLine("Done fixing nuspec!");
 
 
 // remove files for targetFramework 4.5 build\net45
 var net45Dir = Path.Combine(workDir, @"build\net45");
-Directory.Delete(net45Dir, true);
-Console.WriteLine("Done removing net45 dir!");
+if (Directory.Exists(net45Dir))
+{
+    Directory.Delete(net45Dir, true);
+    Console.WriteLine("Done removing net45 dir!");
+}
 
 // update .targets
 var targets = Directory.GetFiles(workDir, "*.targets", SearchOption.AllDirectories).FirstOrDefault();
@@ -108,11 +111,7 @@ void FixNuspec(string nuspecPath, string packId, string version, string year)
     var text = File.ReadAllText(nuspecPath);
     // replace ID <id>OpenStudio</id> with <id>NREL.OpenStudio.win</id>
     text = Regex.Replace(text, @"<id>\w*</id>", $"<id>{packId}</id>", RegexOptions.IgnoreCase);
-    text = Regex.Replace(text, @"<version>\d+.\d+.\d+</version>", $"<version>{version}</version>", RegexOptions.IgnoreCase);
-    // remove <group targetFramework=".NETFramework4.5" />
-    text = Regex.Replace(text, @"<group(\s|\S)*4.5(\S|\s)*>", string.Empty, RegexOptions.IgnoreCase);
-    // update copyright year
-    text = Regex.Replace(text, @"2018(\s|\S)*\d{4}", $"2018-{year}", RegexOptions.IgnoreCase);
+    text = Regex.Replace(text, @"<version>\S*</version>", $"<version>{version}</version>", RegexOptions.IgnoreCase);
     File.WriteAllText(nuspecPath, text);
 }
 

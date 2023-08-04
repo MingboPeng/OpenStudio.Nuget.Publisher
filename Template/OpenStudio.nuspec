@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>OpenStudio</id>
+    <version>3.7.0</version>
+    <authors>NREL</authors>
+    <licenseUrl>http://github.com/NREL/OpenStudio/blob/develop/LICENSE.md</licenseUrl>
+    <description>OpenStudio C# bindings for whole building energy simulation</description>
+    <copyright>Copyright (c) 2008-2023, Alliance for Sustainable Energy, LLC, and other contributors. All rights reserved.</copyright>
+    <tags>OpenStudio EnergyPlus Simulation Modeling</tags>
+    <repository type="git" url="https://github.com/NREL/OpenStudio" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0" />
+    </dependencies>
+  </metadata>
+</package>
