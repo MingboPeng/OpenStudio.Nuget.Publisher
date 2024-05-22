@@ -31,15 +31,23 @@ var repoDir = Path.GetFullPath(".");
 repoDir = repoDir.Contains("bin") ? repoDir.Substring(0, repoDir.LastIndexOf("OpenStudio.NuGet.Publisher")): repoDir;
 Console.WriteLine($"[INFO] Current dir:\n {repoDir}");
 
+var nugetVersions = new List<Version>();
+try
+{
+    // check version https://api.nuget.org/v3-flatcontainer/nrel.openstudio.win/index.json
+    var api = @$"https://api.nuget.org/v3-flatcontainer/{packageID.ToLower()}/index.json";
+    var httpC = new HttpClient();
+    nugetVersions = httpC.GetFromJsonAsync<nugetVersions>(api).GetAwaiter().GetResult()?.versions.OrderBy(_ => _)?.ToList();
 
-// check version https://api.nuget.org/v3-flatcontainer/nrel.openstudio.win/index.json
-var api = @$"https://api.nuget.org/v3-flatcontainer/{packageID.ToLower()}/index.json";
-var httpC = new HttpClient();
-var versions = httpC.GetFromJsonAsync<nugetVersions>(api).GetAwaiter().GetResult()?.versions.OrderBy(_=>_);
+}
+catch (Exception)
+{
+    //throw;
+}
 
 
 var inputVersion = Version.Parse(version);
-while (versions.Contains(inputVersion))
+while (nugetVersions.Contains(inputVersion))
 {
     var rev = inputVersion.Revision;
     if (rev == -1)
