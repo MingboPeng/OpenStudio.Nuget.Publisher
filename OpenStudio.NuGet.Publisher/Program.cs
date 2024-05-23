@@ -94,7 +94,9 @@ if (Directory.Exists(net45Dir))
 // update .targets
 var targets = Directory.GetFiles(workDir, "*.targets", SearchOption.AllDirectories).FirstOrDefault();
 var targetTemp = Path.Combine(repoDir, "Template", $"{packageID}.targets");
-var newTargets = Path.Combine(Path.GetDirectoryName(targets), $"OpenStudio.targets");
+var newTargets = ThisOS.isWindows() ?
+    Path.Combine(Path.GetDirectoryName(targets), $"{packageID}.targets") :
+    Path.Combine(Path.GetDirectoryName(targets), $"OpenStudio.targets");
 
 
 File.Delete(targets);
