@@ -58,5 +58,5 @@ jobs:
 
       - name: "Publish"
         run: |
-          dotnet nuget push ${{ matrix.NuGetID }}.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push ${{ matrix.NuGetID }}.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
           
