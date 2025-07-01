@@ -1,32 +1,30 @@
 env:
-  RUN_ID: 11829640682
-  VERSION: "3.9.0"
+  RUN_ID: 15743262167
+  VERSION: "3.10.0"
 
 name: release to NuGet
 on:
   push:
 
 jobs:
-
   deploy:
     runs-on: ${{ matrix.os }}
     continue-on-error: false
     strategy:
       matrix:
         include:
-        - os: windows-latest
-          NuGetID: "NREL.OpenStudio.win"
-          ArtifactName: "CSharp_Windows_x64x86"
-        - os: macos-13
-          NuGetID: "NREL.OpenStudio.macOS-x64"
-          ArtifactName: "CSharp_macOS"
-        - os: ubuntu-latest
-          NuGetID: "NREL.OpenStudio.linux-x64"
-          ArtifactName: "CSharp_Ubuntu"
-        - os: macos-14
-          NuGetID: "NREL.OpenStudio.macOS-arm64"
-          ArtifactName: "CSharp_macOS_arm64"
-
+          - os: windows-latest
+            NuGetID: "NREL.OpenStudio.win"
+            ArtifactName: "CSharp_Windows_x64x86"
+          - os: macos-13
+            NuGetID: "NREL.OpenStudio.macOS-x64"
+            ArtifactName: "CSharp_macOS"
+          - os: ubuntu-latest
+            NuGetID: "NREL.OpenStudio.linux-x64"
+            ArtifactName: "CSharp_Ubuntu"
+          - os: macos-14
+            NuGetID: "NREL.OpenStudio.macOS-arm64"
+            ArtifactName: "CSharp_macOS_arm64"
 
     steps:
       - name: "Checkout"
@@ -38,13 +36,13 @@ jobs:
         run: |
           gh run download ${{ env.RUN_ID }} -n ${{matrix.ArtifactName}} --dir . --repo NREL/OpenStudio
           ls
-      
+
       - name: "Unzip artifact"
         if: runner.os != 'Windows'
         run: |
           7z e ${{matrix.ArtifactName}}.zip -o.
           ls -r
-      
+
       - name: "Update package"
         run: |
           dotnet run --project OpenStudio.NuGet.Publisher/OpenStudio.NuGet.Publisher.csproj ${{ matrix.NuGetID }} ${{ env.VERSION }}
@@ -59,4 +57,3 @@ jobs:
       - name: "Publish"
         run: |
           dotnet nuget push ${{ matrix.NuGetID }}.*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
-          
