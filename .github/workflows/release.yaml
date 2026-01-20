@@ -16,7 +16,7 @@ jobs:
           - os: windows-latest
             NuGetID: "NREL.OpenStudio.win"
             ArtifactName: "CSharp_Windows_x64x86"
-          - os: macos-13
+          - os: macos-15-intel
             NuGetID: "NREL.OpenStudio.macOS-x64"
             ArtifactName: "CSharp_macOS"
           - os: ubuntu-latest
