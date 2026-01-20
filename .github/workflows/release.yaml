@@ -1,6 +1,6 @@
 env:
-  RUN_ID: 15743262167
-  VERSION: "3.10.0"
+  RUN_ID: 21037124132
+  VERSION: "3.11.0"
 
 name: release to NuGet
 on:
